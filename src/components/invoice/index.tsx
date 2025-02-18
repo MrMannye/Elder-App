@@ -1,15 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useContext, useState } from "react";
-import { InvoiceContext } from "@/src/context/InvoiceContext/index";
+import { InvoiceContext, Paciente } from "@/src/context/InvoiceContext/index";
 import {
 	Table,
 	TextField,
 	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
 	Tooltip,
 	IconButton,
 	TableHead,
@@ -36,15 +32,14 @@ import {
 import CustomCheckbox from "@/src/forms/CustomCheckbox";
 
 function InvoiceList() {
-	const { invoices, deleteInvoice } = useContext(InvoiceContext);
+	const { pacientes } = useContext(InvoiceContext);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [activeTab, setActiveTab] = useState("All");
 	const [selectedProducts, setSelectedProducts] = useState<any>([]);
-	const [selectAll, setSelectAll] = useState(false);
-	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+	const [selectAll] = useState(false);
 
-	const tabItem = ["All", "Shipped", "Delivered", "Pending"];
-	const [currentIndex, setCurrentIndex] = useState(0);
+	const tabItem = ["All", "Diestro", "Zurdo", "Ambidiestro"];
+	const [, setCurrentIndex] = useState(0);
 
 
 	// Handle status filter change
@@ -54,69 +49,27 @@ function InvoiceList() {
 	};
 
 	// Filter invoices based on search term
-	const filteredInvoices = invoices.filter(
-		(invoice: { billFrom: string; billTo: string; status: string }) => {
+	const filteredPacientes = pacientes.filter(
+		(pacient: Paciente) => {
 			return (
-				(invoice.billFrom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					invoice.billTo.toLowerCase().includes(searchTerm.toLowerCase())) &&
-				(activeTab === "All" || invoice.status === activeTab)
+				(pacient.Nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+					pacient.Nombre.toLowerCase().includes(searchTerm.toLowerCase())) &&
+				(activeTab === "All" || pacient.DominanciaMano === activeTab)
 			);
 		}
 	);
 
 	// Calculate the counts for different statuses
-	const Shipped = invoices.filter(
-		(t: { status: string }) => t.status === "Shipped"
+	const Shipped = pacientes.filter(
+		(t: { DominanciaMano: string }) => t.DominanciaMano === "Diestro"
 	).length;
-	const Delivered = invoices.filter(
-		(t: { status: string }) => t.status === "Delivered"
+	const Delivered = pacientes.filter(
+		(t: { DominanciaMano: string }) => t.DominanciaMano === "Zurdo"
 	).length;
-	const Pending = invoices.filter(
-		(t: { status: string }) => t.status === "Pending"
+	const Pending = pacientes.filter(
+		(t: { DominanciaMano: string }) => t.DominanciaMano === "Ambidiestro"
 	).length;
 
-	// Toggle all checkboxes
-	const toggleSelectAll = () => {
-		const selectAllValue = !selectAll;
-		setSelectAll(selectAllValue);
-		if (selectAllValue) {
-			setSelectedProducts(invoices.map((invoice: { id: any }) => invoice.id));
-		} else {
-			setSelectedProducts([]);
-		}
-	};
-
-	// Toggle individual product selection
-	const toggleSelectProduct = (productId: any) => {
-		const index = selectedProducts.indexOf(productId);
-		if (index === -1) {
-			setSelectedProducts([...selectedProducts, productId]);
-		} else {
-			setSelectedProducts(
-				selectedProducts.filter((id: any) => id !== productId)
-			);
-		}
-	};
-
-	// Handle opening delete confirmation dialog
-	const handleDelete = () => {
-		setOpenDeleteDialog(true);
-	};
-
-	// Handle confirming deletion of selected products
-	const handleConfirmDelete = async () => {
-		for (const productId of selectedProducts) {
-			await deleteInvoice(productId);
-		}
-		setSelectedProducts([]);
-		setSelectAll(false);
-		setOpenDeleteDialog(false);
-	};
-
-	// Handle closing delete confirmation dialog
-	const handleCloseDeleteDialog = () => {
-		setOpenDeleteDialog(false);
-	};
 
 	return (
 		(<Box>
@@ -149,7 +102,7 @@ function InvoiceList() {
 							<Box>
 								<Typography>Total</Typography>
 								<Typography fontWeight={500}>
-									{invoices.length} Invoices
+									{pacientes.length} Invoices
 								</Typography>
 							</Box>
 						</Stack>
@@ -281,7 +234,6 @@ function InvoiceList() {
 						<Button
 							variant="outlined"
 							color="error"
-							onClick={handleDelete}
 							startIcon={<IconTrash width={18} />}
 						>
 							Delete All
@@ -308,80 +260,73 @@ function InvoiceList() {
 							</TableCell>
 							<TableCell>
 								<Typography variant="h6" fontSize="14px">
-									Bill From
+									Nombre
 								</Typography>
 							</TableCell>
 							<TableCell>
 								<Typography variant="h6" fontSize="14px">
-									Bill To
+									Fecha de Nacimiento
 								</Typography>
 							</TableCell>
 							<TableCell>
 								<Typography variant="h6" fontSize="14px">
-									Total Cost
+									Edad
 								</Typography>
 							</TableCell>
 							<TableCell>
 								<Typography variant="h6" fontSize="14px">
-									Status
+									Telefono
 								</Typography>
 							</TableCell>
 							<TableCell align="center">
 								<Typography variant="h6" fontSize="14px">
-									Action
+									Dominancia Mano
 								</Typography>
 							</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{filteredInvoices.map(
-							(invoice: {
-								id: any;
-								billFrom: any;
-								billTo: any;
-								totalCost: any;
-								status: any;
-							}) => (
-								<TableRow key={invoice.id}>
+						{filteredPacientes.map(
+							(paciente: Paciente) => (
+								<TableRow key={paciente.ID}>
 									<TableCell padding="checkbox">
 										<CustomCheckbox
-											checked={selectedProducts.includes(invoice.id)}
-											onChange={() => toggleSelectProduct(invoice.id)}
+											checked={selectedProducts.includes(paciente.ID)}
 										/>
 									</TableCell>
 									<TableCell>
 										<Typography variant="h6" fontSize="14px">
-											{invoice.id}
+											{paciente.ID}
 										</Typography>
 									</TableCell>
 									<TableCell>
 										<Typography variant="h6" fontSize="14px">
-											{invoice.billFrom}
+											{paciente.Nombre}
 										</Typography>
 									</TableCell>
 									<TableCell>
-										<Typography fontSize="14px">{invoice.billTo}</Typography>
+										<Typography fontSize="14px">{paciente.FechaNacimiento}</Typography>
 									</TableCell>
 									<TableCell>
-										<Typography fontSize="14px">{invoice.totalCost}</Typography>
+										<Typography fontSize="14px">{paciente.Edad}</Typography>
 									</TableCell>
 									<TableCell>
-										{invoice.status === "Shipped" ? (
+										{paciente.DominanciaMano === "Diestro" ? (
 											<Chip
 												color="primary"
-												label={invoice.status}
+												label={paciente.DominanciaMano}
 												size="small"
 											/>
-										) : invoice.status === "Delivered" ? (
+										) : paciente.DominanciaMano === "Zurdo" ? (
 											<Chip
 												color="success"
-												label={invoice.status}
+												label={paciente.DominanciaMano}
 												size="small"
 											/>
-										) : invoice.status === "Pending" ? (
+										) : paciente.DominanciaMano === "Ambidiestro" ? (
 											<Chip
 												color="warning"
-												label={invoice.status}
+												label={paciente.DominanciaMano}
 												size="small"
 											/>
 										) : (
@@ -393,7 +338,7 @@ function InvoiceList() {
 											<IconButton
 												color="success"
 												component={Link}
-												href={`/apps/invoice/edit/${invoice.billFrom}`}
+												href={`/apps/invoice/edit/${paciente.ID}`}
 											>
 												<IconEdit width={22} />
 											</IconButton>
@@ -402,7 +347,7 @@ function InvoiceList() {
 											<IconButton
 												color="primary"
 												component={Link}
-												href={`/apps/invoice/detail/${invoice.billFrom}`}
+												href={`/apps/invoice/detail/${paciente.ID}`}
 											>
 												<IconEye width={22} />
 											</IconButton>
@@ -411,8 +356,7 @@ function InvoiceList() {
 											<IconButton
 												color="error"
 												onClick={() => {
-													setSelectedProducts([invoice.id]);
-													handleDelete();
+													setSelectedProducts([paciente.ID]);
 												}}
 											>
 												<IconTrash width={22} />
@@ -425,24 +369,6 @@ function InvoiceList() {
 					</TableBody>
 				</Table>
 			</Box>
-			<Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-				<DialogTitle>Confirm Delete</DialogTitle>
-				<DialogContent>
-					Are you sure you want to delete selected invoices?
-				</DialogContent>
-				<DialogActions>
-					<Button variant="contained" onClick={handleCloseDeleteDialog}>
-						Cancel
-					</Button>
-					<Button
-						color="error"
-						variant="outlined"
-						onClick={handleConfirmDelete}
-					>
-						Delete
-					</Button>
-				</DialogActions>
-			</Dialog>
 		</Box >)
 	);
 }
