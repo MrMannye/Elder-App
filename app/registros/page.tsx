@@ -12,7 +12,7 @@ const BCrumb = [
 		title: "Registros",
 	},
 	{
-		title: "Historial",
+		title: "Expedientes",
 	},
 ];
 
@@ -20,7 +20,7 @@ const InvoiceListing = () => {
 	return (
 		<InvoiceProvider>
 			<PageContainer title="Invoice List" description="this is Invoice List">
-				<Breadcrumb title="Historial" items={BCrumb} />
+				<Breadcrumb title="Pacientes" items={BCrumb} />
 				<BlankCard>
 					<CardContent>
 						<InvoiceList />

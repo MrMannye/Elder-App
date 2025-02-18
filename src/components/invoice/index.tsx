@@ -114,7 +114,7 @@ function InvoiceList() {
 						sm: 6,
 						lg: 3
 					}}>
-					<Box bgcolor="secondary.light" p={3} onClick={() => handleClick("Shipped")} sx={{ cursor: "pointer" }}>
+					<Box bgcolor="secondary.light" p={3} onClick={() => handleClick("Zurdo")} sx={{ cursor: "pointer" }}>
 						<Stack direction="row" gap={2} alignItems="center">
 							<Box
 								width={38}
@@ -134,8 +134,8 @@ function InvoiceList() {
 								</Typography>
 							</Box>
 							<Box>
-								<Typography>Shipped</Typography>
-								<Typography fontWeight={500}>{Shipped} Invoices</Typography>
+								<Typography>Zurdo</Typography>
+								<Typography fontWeight={500}>{Shipped} Pacientes</Typography>
 							</Box>
 						</Stack>
 					</Box>
@@ -146,7 +146,7 @@ function InvoiceList() {
 						sm: 6,
 						lg: 3
 					}}>
-					<Box bgcolor="success.light" p={3} onClick={() => handleClick("Delivered")} sx={{ cursor: "pointer" }}>
+					<Box bgcolor="success.light" p={3} onClick={() => handleClick("Diestro")} sx={{ cursor: "pointer" }}>
 						<Stack direction="row" gap={2} alignItems="center">
 							<Box
 								width={38}
@@ -166,8 +166,8 @@ function InvoiceList() {
 								</Typography>
 							</Box>
 							<Box>
-								<Typography>Delivered</Typography>
-								<Typography fontWeight={500}>{Delivered} Invoices</Typography>
+								<Typography>Diestro</Typography>
+								<Typography fontWeight={500}>{Delivered} Pacientes</Typography>
 							</Box>
 						</Stack>
 					</Box>
@@ -178,7 +178,7 @@ function InvoiceList() {
 						sm: 6,
 						lg: 3
 					}}>
-					<Box bgcolor="warning.light" p={3} onClick={() => handleClick("Pending")} sx={{ cursor: "pointer" }}>
+					<Box bgcolor="warning.light" p={3} onClick={() => handleClick("Ambidiestro")} sx={{ cursor: "pointer" }}>
 						<Stack direction="row" gap={2} alignItems="center">
 							<Box
 								width={38}
@@ -198,8 +198,8 @@ function InvoiceList() {
 								</Typography>
 							</Box>
 							<Box>
-								<Typography>Pending</Typography>
-								<Typography fontWeight={500}>{Pending} Invoices</Typography>
+								<Typography>Ambidiestro</Typography>
+								<Typography fontWeight={500}>{Pending} Pacientes</Typography>
 							</Box>
 						</Stack>
 					</Box>
@@ -278,7 +278,7 @@ function InvoiceList() {
 									Telefono
 								</Typography>
 							</TableCell>
-							<TableCell align="center">
+							<TableCell >
 								<Typography variant="h6" fontSize="14px">
 									Dominancia Mano
 								</Typography>
@@ -289,11 +289,6 @@ function InvoiceList() {
 						{filteredPacientes.map(
 							(paciente: Paciente) => (
 								<TableRow key={paciente.ID}>
-									<TableCell padding="checkbox">
-										<CustomCheckbox
-											checked={selectedProducts.includes(paciente.ID)}
-										/>
-									</TableCell>
 									<TableCell>
 										<Typography variant="h6" fontSize="14px">
 											{paciente.ID}
@@ -305,10 +300,13 @@ function InvoiceList() {
 										</Typography>
 									</TableCell>
 									<TableCell>
-										<Typography fontSize="14px">{paciente.FechaNacimiento}</Typography>
+										<Typography fontSize="14px">{new Date(paciente.FechaNacimiento).toDateString()}</Typography>
 									</TableCell>
 									<TableCell>
 										<Typography fontSize="14px">{paciente.Edad}</Typography>
+									</TableCell>
+									<TableCell>
+										<Typography fontSize="14px">{paciente.Telefono}</Typography>
 									</TableCell>
 									<TableCell>
 										{paciente.DominanciaMano === "Diestro" ? (
