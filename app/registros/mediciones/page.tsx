@@ -1,8 +1,8 @@
 import React from "react";
 import Breadcrumb from "@/src/shared/Breadcrumb";
 import PageContainer from "@/src/components/PageContainer";
-import Registros from "@/src/components/registros/Registros";
-import { InvoiceProvider } from "@/src/context/ContextRegistros";
+import Mediciones from "@/src/components/registros/Mediciones";
+import { MedicionesProvider } from "@/src/context/ContexMediciones";
 import BlankCard from "@/src/shared/BlankCard";
 import { CardContent } from "@mui/material";
 
@@ -12,22 +12,22 @@ const BCrumb = [
 		title: "Registros",
 	},
 	{
-		title: "Expedientes",
+		title: "Mediciones",
 	},
 ];
 
 const Page = () => {
 	return (
-		<InvoiceProvider>
-			<PageContainer title="Registros" description="Colección de registros de pacientes">
-				<Breadcrumb title="Pacientes" items={BCrumb} />
+		<MedicionesProvider>
+			<PageContainer title="Mediciones" description="Colección de registros de pacientes">
+				<Breadcrumb title="Mediciones" items={BCrumb} />
 				<BlankCard>
 					<CardContent>
-						<Registros />
+						<Mediciones />
 					</CardContent>
 				</BlankCard>
 			</PageContainer>
-		</InvoiceProvider>
+		</MedicionesProvider>
 	);
 }
 export default Page;

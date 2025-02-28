@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { uniqueId } from "lodash";
 interface MenuitemsType {
 	[x: string]: any;
@@ -264,26 +265,26 @@ const Menuitems: MenuitemsType[] = [
 
 	{
 		id: uniqueId(),
-		title: "Invoice",
+		title: "Registros",
 		icon: 'checklist-minimalistic-line-duotone',
 		bgcolor: "primary",
 		href: "/apps/invoice/list",
 		children: [
 			{
 				id: uniqueId(),
-				title: "List",
+				title: "Datos Pacientes",
 				href: "/registros",
 			},
-			// {
-			// 	id: uniqueId(),
-			// 	title: "Details",
-			// 	href: "/apps/invoice/detail/PineappleInc",
-			// },
-			// {
-			// 	id: uniqueId(),
-			// 	title: "Create",
-			// 	href: "/apps/invoice/create",
-			// },
+			{
+				id: uniqueId(),
+				title: "Mediciones",
+				href: "/registros/mediciones",
+			},
+			{
+				id: uniqueId(),
+				title: "Pruebas",
+				href: "/registros/pruebas",
+			},
 			// {
 			// 	id: uniqueId(),
 			// 	title: "Edit",

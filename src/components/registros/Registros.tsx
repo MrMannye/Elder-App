@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useContext, useState } from "react";
-import { InvoiceContext, Paciente } from "@/src/context/InvoiceContext/index";
+import { InvoiceContext, Paciente } from "@/src/context/ContextRegistros";
 import {
 	Table,
 	TextField,
@@ -25,49 +25,80 @@ import {
 	IconListDetails,
 	IconSearch,
 	IconShoppingBag,
-	IconSortAscending,
 	IconTrash,
-	IconTruck,
 } from "@tabler/icons-react";
-import CustomCheckbox from "@/src/forms/CustomCheckbox";
 
-function InvoiceList() {
+
+function Registros() {
 	const { pacientes } = useContext(InvoiceContext);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [activeTab, setActiveTab] = useState("All");
-	const [selectedProducts, setSelectedProducts] = useState<any>([]);
+	const [, setSelectedProducts] = useState<any>([]);
 	const [selectAll] = useState(false);
 
-	const tabItem = ["All", "Diestro", "Zurdo", "Ambidiestro"];
+	const tabItem = ['All', "New", "Tercera Edad"];
 	const [, setCurrentIndex] = useState(0);
 
 
 	// Handle status filter change
 	const handleClick = (status: string) => {
-		setCurrentIndex((prevIndex) => (prevIndex + 1) % tabItem.length);
-		setActiveTab(status);
+		if (activeTab === status) {
+			setCurrentIndex(0);
+			setActiveTab("All");
+		} else {
+			const index = tabItem.findIndex((item) => item === status);
+			setCurrentIndex(index);
+			setActiveTab(status);
+		}
 	};
 
 	// Filter invoices based on search term
 	const filteredPacientes = pacientes.filter(
 		(pacient: Paciente) => {
-			return (
-				(pacient.Nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					pacient.Nombre.toLowerCase().includes(searchTerm.toLowerCase())) &&
-				(activeTab === "All" || pacient.DominanciaMano === activeTab)
-			);
+			const isSearchTerm = pacient.Nombre.toLowerCase().includes(searchTerm.toLowerCase());
+			if (activeTab === "New") return isNewPatient(pacient.FechaRegistro) && isSearchTerm;
+			if (activeTab === "Tercera Edad") return isOlderThan60(pacient.FechaNacimiento) >= 60 && isSearchTerm;
+			return isSearchTerm;
+		})
+
+	function formatSpanishDate(isoDate: string) {
+		const date = new Date(isoDate);
+		// Meses en español
+		const meses = [
+			"enero", "febrero", "marzo", "abril", "mayo", "junio",
+			"julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+		];
+		const dia = date.getDate(); // Obtener día
+		const mes = meses[date.getMonth()]; // Obtener mes
+		const anio = date.getFullYear(); // Obtener año
+		return `${dia} de ${mes} del ${anio}`;
+	}
+
+	function isOlderThan60(date: string) {
+		const birthDate = new Date(date);
+		const today = new Date();
+		const age = today.getFullYear() - birthDate.getFullYear();
+		const m = today.getMonth() - birthDate.getMonth();
+		if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+			return age - 1;
 		}
-	);
+		return age;
+	}
+
+	function isNewPatient(date: string) {
+		const today = new Date();
+		const currentDate = new Date(date);
+		const diffTime = Math.abs(today.getTime() - currentDate.getTime());
+		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+		return diffDays <= 7;
+	}
 
 	// Calculate the counts for different statuses
-	const Shipped = pacientes.filter(
-		(t: { DominanciaMano: string }) => t.DominanciaMano === "Diestro"
+	const NewPatient = pacientes.filter(
+		(t: { FechaRegistro: string }) => isNewPatient(t.FechaRegistro)
 	).length;
-	const Delivered = pacientes.filter(
-		(t: { DominanciaMano: string }) => t.DominanciaMano === "Zurdo"
-	).length;
-	const Pending = pacientes.filter(
-		(t: { DominanciaMano: string }) => t.DominanciaMano === "Ambidiestro"
+	const Old = pacientes.filter(
+		(t: { FechaNacimiento: string }) => isOlderThan60(t.FechaNacimiento) >= 60
 	).length;
 
 
@@ -78,9 +109,9 @@ function InvoiceList() {
 					size={{
 						xs: 12,
 						sm: 6,
-						lg: 3
+						lg: 6
 					}}>
-					<Box bgcolor="primary.light" p={3} onClick={() => handleClick("All")} sx={{ cursor: "pointer" }}>
+					<Box bgcolor="primary.light" p={3} onClick={() => handleClick("New")} sx={{ cursor: "pointer", opacity: activeTab === 'New' ? 0.5 : 1 }}>
 						<Stack direction="row" gap={2} alignItems="center">
 							<Box
 								width={38}
@@ -100,9 +131,9 @@ function InvoiceList() {
 								</Typography>
 							</Box>
 							<Box>
-								<Typography>Total</Typography>
+								<Typography>Nuevos Pacientes</Typography>
 								<Typography fontWeight={500}>
-									{pacientes.length} Invoices
+									{NewPatient} registros
 								</Typography>
 							</Box>
 						</Stack>
@@ -112,9 +143,9 @@ function InvoiceList() {
 					size={{
 						xs: 12,
 						sm: 6,
-						lg: 3
+						lg: 6
 					}}>
-					<Box bgcolor="secondary.light" p={3} onClick={() => handleClick("Zurdo")} sx={{ cursor: "pointer" }}>
+					<Box bgcolor="secondary.light" p={3} onClick={() => handleClick("Tercera Edad")} sx={{ cursor: "pointer", opacity: activeTab === 'Tercera Edad' ? 0.5 : 1 }}>
 						<Stack direction="row" gap={2} alignItems="center">
 							<Box
 								width={38}
@@ -134,72 +165,8 @@ function InvoiceList() {
 								</Typography>
 							</Box>
 							<Box>
-								<Typography>Zurdo</Typography>
-								<Typography fontWeight={500}>{Shipped} Pacientes</Typography>
-							</Box>
-						</Stack>
-					</Box>
-				</Grid>
-				<Grid
-					size={{
-						xs: 12,
-						sm: 6,
-						lg: 3
-					}}>
-					<Box bgcolor="success.light" p={3} onClick={() => handleClick("Diestro")} sx={{ cursor: "pointer" }}>
-						<Stack direction="row" gap={2} alignItems="center">
-							<Box
-								width={38}
-								height={38}
-								bgcolor="success.main"
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-							>
-								<Typography
-									color="primary.contrastText"
-									display="flex"
-									alignItems="center"
-									justifyContent="center"
-								>
-									<IconTruck width={22} />
-								</Typography>
-							</Box>
-							<Box>
-								<Typography>Diestro</Typography>
-								<Typography fontWeight={500}>{Delivered} Pacientes</Typography>
-							</Box>
-						</Stack>
-					</Box>
-				</Grid>
-				<Grid
-					size={{
-						xs: 12,
-						sm: 6,
-						lg: 3
-					}}>
-					<Box bgcolor="warning.light" p={3} onClick={() => handleClick("Ambidiestro")} sx={{ cursor: "pointer" }}>
-						<Stack direction="row" gap={2} alignItems="center">
-							<Box
-								width={38}
-								height={38}
-								bgcolor="warning.main"
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-							>
-								<Typography
-									color="primary.contrastText"
-									display="flex"
-									alignItems="center"
-									justifyContent="center"
-								>
-									<IconSortAscending width={22} />
-								</Typography>
-							</Box>
-							<Box>
-								<Typography>Ambidiestro</Typography>
-								<Typography fontWeight={500}>{Pending} Pacientes</Typography>
+								<Typography>Pacientes 3.ª Edad</Typography>
+								<Typography fontWeight={500}>{Old} registros</Typography>
 							</Box>
 						</Stack>
 					</Box>
@@ -270,7 +237,7 @@ function InvoiceList() {
 							</TableCell>
 							<TableCell>
 								<Typography variant="h6" fontSize="14px">
-									Edad
+									Ocupacion
 								</Typography>
 							</TableCell>
 							<TableCell>
@@ -300,10 +267,10 @@ function InvoiceList() {
 										</Typography>
 									</TableCell>
 									<TableCell>
-										<Typography fontSize="14px">{new Date(paciente.FechaNacimiento).toDateString()}</Typography>
+										<Typography fontSize="14px">{formatSpanishDate(paciente.FechaNacimiento)}</Typography>
 									</TableCell>
 									<TableCell>
-										<Typography fontSize="14px">{paciente.Edad}</Typography>
+										<Typography fontSize="14px">{paciente.Ocupacion}</Typography>
 									</TableCell>
 									<TableCell>
 										<Typography fontSize="14px">{paciente.Telefono}</Typography>
@@ -370,4 +337,4 @@ function InvoiceList() {
 		</Box >)
 	);
 }
-export default InvoiceList;
+export default Registros;
